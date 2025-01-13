@@ -142,11 +142,48 @@
         .loading-spinner {
             width: 48px;
             height: 48px;
-            border: 3px solid var(--border-color);
-            border-radius: 50%;
-            border-top-color: #0acffe;
-            animation: spinner 1s ease-in-out infinite;
+            position: relative;
             margin-bottom: 16px;
+            /* 静态底座 */
+            box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.2), inset -3px -3px 6px rgba(255, 255, 255, 0.05), 6px 6px 12px rgba(0, 0, 0, 0.2), -2px -2px 8px rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+            /* 旋转的顶层圆环 */
+            .loading-spinner::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border: 3px solid var(--border-color);
+                border-top-color: #0acffe;
+                border-radius: 50%;
+                animation: spinner 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            }
+
+            /* 内部静态圆环 */
+            .loading-spinner::after {
+                content: '';
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                right: 4px;
+                bottom: 4px;
+                border-radius: 50%;
+                border: 2px solid rgba(255, 255, 255, 0.05);
+                box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.05);
+            }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -154,24 +191,6 @@
             font-size: 14px;
             font-weight: 500;
             animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .loading-background {
-            position: absolute;
-            top: 0;
-            left: 0; /* 改为 0 */
-            width: 200%;
-            height: 100%;
-            background: var(--loading-gradient);
-            animation: shine 2s ease-in-out infinite;
-            opacity: 0.5;
-            transform: translateX(-50%); /* 添加初始位置 */
-        }
-
-        @keyframes spinner {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         @keyframes pulse {
@@ -184,13 +203,27 @@
             }
         }
 
+        .loading-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient( 90deg, rgba(10, 207, 254, 0.2) 0%, rgba(73, 90, 255, 0.2) 50%, rgba(10, 207, 254, 0.2) 100% );
+            background-size: 200% 100%;
+            animation: shine 4s linear infinite;
+            opacity: 0.5;
+        }
+
         @keyframes shine {
-            from {
-                transform: translateX(-50%);
+            0% {
+                background-position: -100% 0;
             }
 
-            to {
-                transform: translateX(50%);
+            100% {
+                background-position: 100% 0;
             }
         }
 
@@ -1353,6 +1386,11 @@
     </div>
 
     <script>
+        // 调试变量
+        const DEBUG = {
+            alwaysShowLoading: false,  // 设置为 true 时将一直显示加载状态
+        };
+
         // 分页相关变量
         let currentPage = 1;
         let pageSize = 50;
@@ -11630,9 +11668,9 @@
                 const loadingIndicator = document.getElementById('loadingIndicator');
                 const table = document.getElementById('tabledemo');
 
-                // 显示加载状态
-                loadingIndicator.style.display = 'flex';
-                table.style.display = 'none';
+                // 初始化时显示加载状态
+                loadingIndicator.style.display = DEBUG.alwaysShowLoading ? 'flex' : 'none';
+                table.style.display = DEBUG.alwaysShowLoading ? 'none' : 'table';
 
                 // 初始化分页大小选择器
                 document.getElementById('pageSize').value = pageSize;
@@ -11648,19 +11686,23 @@
                 BuildCounts();
                 OnInputChange();
 
-                // 隐藏加载状态
-                loadingIndicator.style.display = 'none';
-                table.style.display = 'table';
+                // 只在非调试模式下隐藏加载状态
+                if (!DEBUG.alwaysShowLoading) {
+                    loadingIndicator.style.display = 'none';
+                    table.style.display = 'table';
+                }
 
                 // 检查底部分页显示
                 checkBottomPaginationVisibility();
             } catch (error) {
                 console.error('Error in window.onload:', error);
-                // 发生错误时也要隐藏加载指示器
+                // 仍然尊重调试设置
                 const loadingIndicator = document.getElementById('loadingIndicator');
                 const table = document.getElementById('tabledemo');
-                if (loadingIndicator) loadingIndicator.style.display = 'none';
-                if (table) table.style.display = 'table';
+                if (!DEBUG.alwaysShowLoading) {
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+                    if (table) table.style.display = 'table';
+                }
             }
         };
     </script>
