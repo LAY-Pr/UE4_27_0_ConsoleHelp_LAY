@@ -1,13 +1,16 @@
 ﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-    <title>UE4 Console Variables and Commands</title>
+    <title>UE4.27 Console Variables and Commands</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://lay-pr.github.io/UE4_27_0_ConsoleHelp_LAY/Resources/Logo/UE_LOGO.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://lay-pr.github.io/UE4_27_0_ConsoleHelp_LAY/Resources/Logo/UE_LOGO.ico" type="image/x-icon">
     <style type="text/css">
         :root {
             /* 字体和基础颜色 */
             --font-mono: 'Cascadia Code', 'JetBrains Mono', 'Source Code Pro', 'Ubuntu Mono', 'Fira Code', Consolas, monospace;
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --loading-gradient: linear-gradient(90deg, rgba(10, 207, 254, 0.2) 0%, rgba(73, 90, 255, 0.2) 100%);
             --text-primary: #F5F5F5;
             --text-bright: #FFFFFF;
             --text-secondary: #B8BEC3;
@@ -57,19 +60,44 @@
             gap: 16px;
         }
 
-        h1 {
+        .title-container {
             grid-column: 1 / -1;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title-background {
+            position: absolute;
+            bottom: 0; /* 改为底部对齐 */
+            left: 0;
+            width: 100%;
+            height: auto; /* 让高度自适应 */
+            min-height: 100%; /* 确保至少覆盖容器高度 */
+            object-fit: cover;
+            object-position: center bottom; /* 设置对象位置为底部中心 */
+            z-index: 1;
+            transform-origin: bottom; /* 变换原点设置在底部 */
+            transform: scale(1.01); /* 稍微放大一点防止边缘出现空隙 */
+        }
+
+        h1 {
+            position: relative;
+            z-index: 2;
             font-size: 28px;
             font-weight: 600;
             color: var(--text-bright);
-            margin: 0; /* 移除所有外边距 */
+            margin: 0;
             padding: 24px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
             text-align: center;
             letter-spacing: 0.5px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(26, 27, 28, 0.5);
+
+            /* 新拟态文字效果 */
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8), /* 暗部阴影 */
+            -2px -2px 3px rgba(255, 255, 255, 0.3); /* 亮部阴影 */
         }
 
         .search-sidebar {
@@ -95,6 +123,75 @@
         .search-form,
         .filter-section {
             flex: 0 0 auto; /* 不允许压缩和增长，保持原始大小 */
+        }
+
+        /* 添加加载指示器样式 */
+        .loading-container {
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: #0acffe;
+            animation: spinner 1s ease-in-out infinite;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-background {
+            position: absolute;
+            top: 0;
+            left: 0; /* 改为 0 */
+            width: 200%;
+            height: 100%;
+            background: var(--loading-gradient);
+            animation: shine 2s ease-in-out infinite;
+            opacity: 0.5;
+            transform: translateX(-50%); /* 添加初始位置 */
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shine {
+            from {
+                transform: translateX(-50%);
+            }
+
+            to {
+                transform: translateX(50%);
+            }
         }
 
         .search-input {
@@ -153,18 +250,12 @@
 
         .prefix-container-wrapper::before {
             top: 0;
-            background: linear-gradient(to bottom,
-                rgba(26, 27, 28, 1) 0%,
-                rgba(26, 27, 28, 0.8) 20%,
-                rgba(26, 27, 28, 0) 100%);
+            background: linear-gradient(to bottom, rgba(26, 27, 28, 1) 0%, rgba(26, 27, 28, 0.8) 20%, rgba(26, 27, 28, 0) 100%);
         }
 
         .prefix-container-wrapper::after {
             bottom: 0;
-            background: linear-gradient(to top,
-                rgba(26, 27, 28, 1) 0%,
-                rgba(26, 27, 28, 0.8) 20%,
-                rgba(26, 27, 28, 0) 100%);
+            background: linear-gradient(to top, rgba(26, 27, 28, 1) 0%, rgba(26, 27, 28, 0.8) 20%, rgba(26, 27, 28, 0) 100%);
         }
 
         /* 滚动条样式 */
@@ -181,9 +272,9 @@
             border-radius: 2px;
         }
 
-        .prefix-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
+            .prefix-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
 
         .prefix-link {
             padding: 8px 12px;
@@ -203,45 +294,38 @@
             position: relative;
         }
 
-        .prefix-link:hover {
-            background: var(--card-bg-hover);
-            color: #0acffe;
-            border-color: #1CB5E0;
-            transform: translateY(-2px);
-            box-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(73, 90, 255, 0.2);
-        }
+            .prefix-link:hover {
+                background: var(--card-bg-hover);
+                color: #0acffe;
+                border-color: #1CB5E0;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(73, 90, 255, 0.2);
+            }
 
-        .prefix-link:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition-duration: 0.1s;
-        }
+            .prefix-link:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                transition-duration: 0.1s;
+            }
 
-        /* 新拟态凸出效果 */
-        .prefix-link::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 6px;
-            background: linear-gradient(
-                145deg,
-                rgba(255, 255, 255, 0.1),
-                rgba(0, 0, 0, 0.1)
-            );
-            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2),
-                        -1px -1px 3px rgba(255, 255, 255, 0.05);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
+            /* 新拟态凸出效果 */
+            .prefix-link::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 6px;
+                background: linear-gradient( 145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1) );
+                box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2), -1px -1px 3px rgba(255, 255, 255, 0.05);
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
 
-        .prefix-link:hover::after {
-            opacity: 1;
-        }
+            .prefix-link:hover::after {
+                opacity: 1;
+            }
 
         .filter-section {
             background: var(--background-dark);
@@ -371,14 +455,14 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .table-container tbody td {
-            transition: opacity 0.2s ease;
-        }
+            .table-container tbody td {
+                transition: opacity 0.2s ease;
+            }
 
-        /* 添加切换时的过渡类 */
-        .table-container.switching tbody td {
-            opacity: 0;
-        }
+            /* 添加切换时的过渡类 */
+            .table-container.switching tbody td {
+                opacity: 0;
+            }
 
         /* 未翻译条目的样式 */
         .no-translation {
@@ -512,9 +596,9 @@
             -ms-user-select: none;
         }
 
-        .copy-tooltip.show {
-            opacity: 1;
-        }
+            .copy-tooltip.show {
+                opacity: 1;
+            }
 
         /* 当页面中有文本被选中时隐藏所有复制按钮 */
         body:has(::selection) .copy-button,
@@ -537,7 +621,7 @@
         /* 表格第一列(NAME列)样式 */
         td:first-child {
             width: auto;
-            min-width: 200px;
+            min-width: 100px;
             background: transparent;
             font-weight: 600;
             font-family: var(--font-mono);
@@ -712,7 +796,7 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             width: 100%;
-            min-width: 200px;
+            min-width: 100px;
         }
 
         /* 修改命令名称容器样式 */
@@ -755,11 +839,16 @@
             text-decoration: underline;
             cursor: help;
             position: relative;
+            /* 添加以下属性支持换行 */
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-all;
+            display: inline; /* 改为 inline 以支持换行 */
         }
 
-        .command-link:hover {
-            text-decoration: none;
-        }
+            .command-link:hover {
+                text-decoration: none;
+            }
 
         /* 修改类型标签样式 */
         .command-reference-type {
@@ -773,18 +862,18 @@
             white-space: nowrap;
         }
 
-        /* 不同类型的背景色 */
-        .command-reference-type.type-var {
-            background: linear-gradient(to right, #75432c 0%, #75432c80 100%);
-        }
+            /* 不同类型的背景色 */
+            .command-reference-type.type-var {
+                background: linear-gradient(to right, #75432c 0%, #75432c80 100%);
+            }
 
-        .command-reference-type.type-cmd {
-            background: linear-gradient(to right, #2c4875 0%, #2c487580 100%);
-        }
+            .command-reference-type.type-cmd {
+                background: linear-gradient(to right, #2c4875 0%, #2c487580 100%);
+            }
 
-        .command-reference-type.type-exec {
-            background: linear-gradient(to right, #227D51 0%, #227D5180 100%);
-        }
+            .command-reference-type.type-exec {
+                background: linear-gradient(to right, #227D51 0%, #227D5180 100%);
+            }
 
 
         /* 修改分页容器的样式，添加顶部间距类 */
@@ -799,20 +888,20 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* 添加顶部和底部分页容器的特定样式 */
-        .pagination-container.top {
-            margin: 0 0 16px 0;
-        }
+            /* 添加顶部和底部分页容器的特定样式 */
+            .pagination-container.top {
+                margin: 0 0 16px 0;
+            }
 
-        /* 添加底部分页栏的隐藏样式 */
-        .pagination-container.bottom {
-            margin: 16px 0 0 0;
-            display: none; /* 默认隐藏 */
-        }
+            /* 添加底部分页栏的隐藏样式 */
+            .pagination-container.bottom {
+                margin: 16px 0 0 0;
+                display: none; /* 默认隐藏 */
+            }
 
-        .pagination-container.bottom.show {
-            display: flex; /* 显示时使用 flex 布局 */
-        }
+                .pagination-container.bottom.show {
+                    display: flex; /* 显示时使用 flex 布局 */
+                }
 
         .pagination-info {
             margin-left: 12px;
@@ -864,9 +953,9 @@
             font-size: 13px;
         }
 
-        .page-size-select:hover {
-            border-color: #0acffe;
-        }
+            .page-size-select:hover {
+                border-color: #0acffe;
+            }
 
         /* 页码信息组样式 */
         .pagination-info-group {
@@ -895,22 +984,22 @@
             transition: all 0.2s ease;
         }
 
-        .page-jump-input:focus {
-            outline: none;
-            border-color: #0acffe;
-            box-shadow: 0 0 0 2px rgba(10, 207, 254, 0.2);
-        }
+            .page-jump-input:focus {
+                outline: none;
+                border-color: #0acffe;
+                box-shadow: 0 0 0 2px rgba(10, 207, 254, 0.2);
+            }
 
-        /* 去除输入框的上下箭头 */
-        .page-jump-input::-webkit-inner-spin-button,
-        .page-jump-input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+            /* 去除输入框的上下箭头 */
+            .page-jump-input::-webkit-inner-spin-button,
+            .page-jump-input::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
 
-        .page-jump-input[type=number] {
-            -moz-appearance: textfield;
-        }
+            .page-jump-input[type=number] {
+                -moz-appearance: textfield;
+            }
 
         /* 跳转提示样式 */
         .jump-tooltip {
@@ -947,12 +1036,12 @@
             box-shadow: var(--shadow-md);
         }
 
-        .footer-info b {
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-right: 8px;
-        }
+            .footer-info b {
+                background: var(--accent-gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-right: 8px;
+            }
 
         @media (max-width: 1000px) {
             .container {
@@ -1028,6 +1117,18 @@
                 gap: 8px;
                 align-content: flex-start;
             }
+
+            /* 上下渐变阴影 */
+            .prefix-container-wrapper::before,
+            .prefix-container-wrapper::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 7px; /* 为滚动条留出空间 */
+                height: 24px; /* 增加渐变高度 */
+                pointer-events: none;
+                z-index: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1057,6 +1158,18 @@
             .prefix-container {
                 padding: 6px;
                 gap: 6px;
+            }
+
+            /* 上下渐变阴影 */
+            .prefix-container-wrapper::before,
+            .prefix-container-wrapper::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 5px; /* 为滚动条留出空间 */
+                height: 15px; /* 增加渐变高度 */
+                pointer-events: none;
+                z-index: 1;
             }
 
             .prefix-link {
@@ -1097,10 +1210,10 @@
             min-height: 100px;
         }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background: #303132;  /* 调亮 */
-            width: 8px;
-        }
+            body::-webkit-scrollbar-thumb:hover {
+                background: #303132; /* 调亮 */
+                width: 8px;
+            }
 
         /* 为了确保整个页面都使用这个滚动条样式 */
         html::-webkit-scrollbar {
@@ -1121,15 +1234,21 @@
             min-height: 100px;
         }
 
-        html::-webkit-scrollbar-thumb:hover {
-            background: #2a2b2c;  /* 自定义一个略深的颜色 */
-            width: 8px;
-        }
+            html::-webkit-scrollbar-thumb:hover {
+                background: #2a2b2c; /* 自定义一个略深的颜色 */
+                width: 8px;
+            }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>虚幻引擎4.27控制台变量和命令</h1>
+        <!-- 在 <h1> 外层添加容器 -->
+        <div class="title-container">
+            <video class="title-background" autoplay loop muted playsinline>
+                <source src="https://lay-pr.github.io/UE4_27_0_ConsoleHelp_LAY/Resources/Video/H1.webm" type="video/webm">
+            </video>
+            <h1>虚幻引擎4.27控制台变量和命令</h1>
+        </div>
 
         <div class="search-sidebar">
             <form class="search-form" onsubmit="return false" autocomplete="off">
@@ -1193,6 +1312,13 @@
             </div>
 
             <div class="table-container">
+                <!-- 添加加载指示器 -->
+                <div class="loading-container" id="loadingIndicator">
+                    <div class="loading-background"></div>
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">正在加载数据...</div>
+                </div>
+
                 <table id="tabledemo">
                     <thead>
                         <tr>
@@ -11500,22 +11626,42 @@
         var cvars = cvars_cn.map(item => ({ ...item }));
 
         window.onload = function () {
-            // 初始化分页大小选择器
-            document.getElementById('pageSize').value = pageSize;
-            document.getElementById('pageSize-bottom').value = pageSize;
+            try {
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const table = document.getElementById('tabledemo');
 
-            // 确保切换按钮初始状态为未选中（显示中文）
-            document.getElementById('helpLanguageToggle').checked = false;
+                // 显示加载状态
+                loadingIndicator.style.display = 'flex';
+                table.style.display = 'none';
 
-            // 默认开启同时搜索帮助内容
-            document.getElementById('SearchInHelpId').checked = true;
+                // 初始化分页大小选择器
+                document.getElementById('pageSize').value = pageSize;
+                document.getElementById('pageSize-bottom').value = pageSize;
 
-            // 初始化数据
-            BuildCounts();
-            OnInputChange();
+                // 确保切换按钮初始状态为未选中（显示中文）
+                document.getElementById('helpLanguageToggle').checked = false;
 
-            // 检查底部分页显示
-            checkBottomPaginationVisibility();
+                // 默认开启同时搜索帮助内容
+                document.getElementById('SearchInHelpId').checked = true;
+
+                // 初始化数据
+                BuildCounts();
+                OnInputChange();
+
+                // 隐藏加载状态
+                loadingIndicator.style.display = 'none';
+                table.style.display = 'table';
+
+                // 检查底部分页显示
+                checkBottomPaginationVisibility();
+            } catch (error) {
+                console.error('Error in window.onload:', error);
+                // 发生错误时也要隐藏加载指示器
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const table = document.getElementById('tabledemo');
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                if (table) table.style.display = 'table';
+            }
         };
     </script>
 </body>
