@@ -1067,7 +1067,17 @@
             color: var(--text-secondary);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-md);
+            word-wrap: break-word; /* 允许长单词或URL在任意位置换行 */
+            word-break: break-all; /* 允许在任意字符间断行 */
+            overflow-wrap: break-word; /* 确保长词不会溢出容器 */
         }
+            .footer-info a {
+                word-wrap: break-word;
+                word-break: break-all;
+                overflow-wrap: break-word;
+                display: inline-block; /* 使链接可以正常换行 */
+                max-width: 100%; /* 确保链接不会超出容器宽度 */
+            }
 
             .footer-info b {
                 background: var(--accent-gradient);
